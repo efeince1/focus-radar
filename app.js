@@ -1,5 +1,3 @@
-import { getState, setState, subscribe } from './src/js/state.js';
+import { initTimer } from './src/js/timer.js';
 
-subscribe((state) => console.log('state changed:', state));
-console.log('initial state:', getState());
-
+initTimer();
