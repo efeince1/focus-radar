@@ -1,11 +1,12 @@
 const STORAGE_KEY = 'focusradar:v1';
-const PERSISTED_KEYS = ['currentCity', 'favorites', 'ambientVolumes', 'presets', 'stats'];
-
+const PERSISTED_KEYS = ['currentCity', 'workspaces', 'favorites', 'ambientVolumes', 'presets', 'stats'];
 const todayKey = () => new Date().toISOString().slice(0, 10);
 
 const defaultState = {
   currentCity: null,
   workspaces: [],
+  status: 'idle', // 'idle' | 'loading' | 'error'
+  error: null,
   activeFilter: 'all',
   sortBy: 'distance',
   favorites: [],
