@@ -1,0 +1,12 @@
+/* Leaflet'i koyu temaya uydur */
+.leaflet-container { background: #0c141f; font-family: Inter, sans-serif; }
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip { background: #19202c; color: #dce2f4; }
+.leaflet-popup-content-wrapper { border-radius: 12px; }
+.leaflet-popup-content a { color: #57f1db; font-weight: 600; }
+.leaflet-container a.leaflet-popup-close-button { color: #bacac5; }
+.leaflet-control-attribution { background: rgba(12, 20, 31, 0.75) !important; color: #bacac5 !important; }
+.leaflet-control-attribution a { color: #57f1db !important; }
+.dark-tiles {
+  filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.85) saturate(0.7);
+}

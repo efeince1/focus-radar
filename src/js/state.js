@@ -64,3 +64,11 @@ export function toggleFavorite(place) {
       : [...favorites, place],
   }));
 }
+export const visiblePlaces = ({ workspaces, activeFilter, sortBy }) =>
+  workspaces
+    .filter(({ type }) => activeFilter === 'all' || type === activeFilter)
+    .sort(
+      sortBy === 'name'
+        ? (a, b) => a.name.localeCompare(b.name)
+        : (a, b) => a.distanceKm - b.distanceKm
+    );

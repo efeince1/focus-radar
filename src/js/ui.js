@@ -1,5 +1,6 @@
-import { getState, setState, subscribe, isFavorite, toggleFavorite } from './state.js';
+import { getState, setState, subscribe, isFavorite, toggleFavorite, visiblePlaces } from './state.js';
 import { geocodeCity, fetchWorkspaces, ApiError } from './api.js';
+import { initMap, focusPlace } from './map.js';
 
 const $ = (id) => document.getElementById(id);
 const escapeHtml = (value) =>
@@ -49,12 +50,6 @@ async function locateUser() {
 }
 
 // ---------- Render yardımcıları ----------
-const visiblePlaces = ({ workspaces, activeFilter, sortBy }) =>
-  workspaces
-    .filter(({ type }) => activeFilter === 'all' || type === activeFilter)
-    .sort(sortBy === 'name'
-      ? (a, b) => a.name.localeCompare(b.name)
-      : (a, b) => a.distanceKm - b.distanceKm);
 
 const countByType = (places) =>
   places.reduce((acc, { type }) => ({ ...acc, [type]: (acc[type] ?? 0) + 1 }), { all: places.length });
@@ -76,8 +71,7 @@ function placeCard(place, { showDistance = true } = {}) {
   const directions = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lon}`;
 
   return `
-    <article class="group bg-surface-container/80 backdrop-blur-xl rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-primary/5 transition-all flex flex-col justify-between">
-      <div class="relative h-36 w-full overflow-hidden bg-gradient-to-br from-surface-container-high via-surface-container-low to-surface-container-lowest flex items-center justify-center border-b border-surface-container-highest">
+<article data-card="${escapeHtml(place.id)}" class="cursor-pointer group bg-surface-container/80 backdrop-blur-xl rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-primary/5 transition-all flex flex-col justify-between">      <div class="relative h-36 w-full overflow-hidden bg-gradient-to-br from-surface-container-high via-surface-container-low to-surface-container-lowest flex items-center justify-center border-b border-surface-container-highest">
         <div class="absolute -right-8 -top-8 w-40 h-40 ${style.glow} rounded-full blur-2xl pointer-events-none"></div>
         <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none select-none">
           <span class="material-symbols-outlined text-[96px] ${style.text}">${style.icon}</span>
@@ -169,10 +163,15 @@ function onGridClick(e) {
     return;
   }
   const heart = e.target.closest('[data-fav]');
-  if (!heart) return;
-  const { workspaces, favorites } = getState();
-  const place = [...workspaces, ...favorites].find(({ id }) => id === heart.dataset.fav);
-  if (place) toggleFavorite(place);
+  if (heart) {
+    const { workspaces, favorites } = getState();
+    const place = [...workspaces, ...favorites].find(({ id }) => id === heart.dataset.fav);
+    if (place) toggleFavorite(place);
+    return;
+  }
+  if (e.target.closest('a')) return; // Website / Directions linkleri normal çalışsın
+  const card = e.target.closest('[data-card]');
+  if (card) focusPlace(card.dataset.card);
 }
 
 export function initUI() {
@@ -201,7 +200,7 @@ export function initUI() {
   $('sort-select').addEventListener('change', (e) => setState({ sortBy: e.target.value }));
   $('radar-grid').addEventListener('click', onGridClick);
   $('favorites-grid').addEventListener('click', onGridClick);
-
+initMap();
   subscribe(render);
   render(getState());
 }
